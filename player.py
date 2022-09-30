@@ -18,6 +18,7 @@ class Player(pygame.sprite.Sprite):
 
         # movement
         self.direction = pygame.math.Vector2(0, 0)
+        # maintain position individually because of rect only require integer.
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 200
 
