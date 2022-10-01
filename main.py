@@ -18,7 +18,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
             # dt is does matter.
-            dt = self.clock.tick(300) / 1000
+            dt = self.clock.tick(180) / 1000
             self.level.run(dt)
             pygame.display.update()
 
