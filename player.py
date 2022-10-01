@@ -26,7 +26,9 @@ class Player(pygame.sprite.Sprite):
         # timers
         self.timers = {
             'tool use': Timer(2000, self.use_tool),
-            'tool switch': Timer(200)
+            'tool switch': Timer(200),
+            'seed use': Timer(200, self.use_seed),
+            'seed switch': Timer(200)
         }
 
         # tools
@@ -34,8 +36,16 @@ class Player(pygame.sprite.Sprite):
         self.tool_index = 0
         self.selected_tool = self.tools[self.tool_index]
 
+        # seeds
+        self.seeds = ['corn', 'tomato']
+        self.seed_index = 0
+        self.selected_seed = self.seeds[self.seed_index]
+
     def use_tool(self):
         print(f'used {self.selected_tool} !!!')
+
+    def use_seed(self):
+        print(f'uesd {self.selected_seed}!!!')
 
     def import_assets(self):
         self.animations = {'up': [], 'down': [], 'left': [], 'right': [],
@@ -83,12 +93,22 @@ class Player(pygame.sprite.Sprite):
                 self.timers['tool use'].activate()
                 self.direction = pygame.math.Vector2()
                 self.frame_index = 0
-
             # change tool
             if not self.timers['tool switch'].active and keys[pygame.K_q]:
                 self.timers['tool switch'].activate()
                 self.tool_index = (self.tool_index + 1) % len(self.tools)
                 self.selected_tool = self.tools[self.tool_index]
+
+            # seed use
+            if keys[pygame.K_e]:
+                # timer for the tool use
+                self.timers['seed use'].activate()
+                self.direction = pygame.math.Vector2()
+            # change seed
+            if not self.timers['seed switch'].active and keys[pygame.K_LCTRL]:
+                self.timers['seed switch'].activate()
+                self.seed_index = (self.seed_index + 1) % len(self.seeds)
+                self.selected_seed = self.seeds[self.seed_index]
 
     def move(self, dt):
         # normalizing a vector
