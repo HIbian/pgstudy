@@ -18,12 +18,12 @@ class Overlay:
     def display(self):
         # tool
         tool_surf = self.tools_surf[self.player.selected_tool]
-        tool_surf = pygame.transform.scale(tool_surf,(tool_surf.get_size()[0] * 3,tool_surf.get_size()[1] * 3))
+        tool_surf = pygame.transform.scale(tool_surf,(tool_surf.get_size()[0],tool_surf.get_size()[1]))
         tool_rect = tool_surf.get_rect(midbottom=OVERLAY_POSITIONS['tool'])
         self.display_surface.blit(tool_surf, tool_rect)
 
         # seed
         seed_surf = self.seeds_surf[self.player.selected_seed]
-        seed_surf = pygame.transform.scale(seed_surf,(seed_surf.get_size()[0] * 3,seed_surf.get_size()[1] * 3))
+        seed_surf = pygame.transform.scale(seed_surf,(seed_surf.get_size()[0],seed_surf.get_size()[1]))
         seed_rect = seed_surf.get_rect(midbottom=OVERLAY_POSITIONS['seed'])
         self.display_surface.blit(seed_surf, seed_rect)
