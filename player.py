@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animations[self.status][self.frame_index]
         # rect only receive integer,so we use pos fluted instead of rect.
         self.rect = self.image.get_rect(center=pos)
+        self.z = LAYERS['main']
 
         # movement
         self.direction = pygame.math.Vector2(0, 0)
