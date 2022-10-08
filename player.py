@@ -5,7 +5,7 @@ from timer import Timer
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
+    def __init__(self, pos, group, collison_sprites):
         super().__init__(group)
 
         self.import_assets()
@@ -23,6 +23,10 @@ class Player(pygame.sprite.Sprite):
         # maintain position individually because of rect only require integer.
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 200
+
+        # collision
+        self.collison_sprites = collison_sprites
+        self.hitbox = self.rect.copy().inflate((-126, -70))
 
         # timers
         self.timers = {
@@ -111,6 +115,27 @@ class Player(pygame.sprite.Sprite):
                 self.seed_index = (self.seed_index + 1) % len(self.seeds)
                 self.selected_seed = self.seeds[self.seed_index]
 
+    def collision(self, direction):
+        for sprite in self.collison_sprites.sprites():
+            if not hasattr(sprite, 'hitbox'):
+                continue
+            if not sprite.hitbox.colliderect(self.hitbox):
+                continue
+            if direction == 'horizontal':
+                if self.direction.x > 0:  # moving right
+                    self.hitbox.right = sprite.hitbox.left
+                if self.direction.x < 0:  # moving left
+                    self.hitbox.left = sprite.hitbox.right
+                self.rect.centerx = self.hitbox.centerx
+                self.pos.x = self.hitbox.centerx
+            elif direction == 'vertical':
+                if self.direction.y < 0:  # moving right
+                    self.hitbox.top = sprite.hitbox.bottom
+                if self.direction.y > 0:  # moving left
+                    self.hitbox.bottom = sprite.hitbox.top
+                self.rect.centery = self.hitbox.centery
+                self.pos.y = self.hitbox.centery
+
     def move(self, dt):
         # normalizing a vector
         if self.direction != (0, 0):
@@ -118,11 +143,15 @@ class Player(pygame.sprite.Sprite):
 
         # horizontal movement
         self.pos.x += self.direction.x * self.speed * dt
-        self.rect.centerx = self.pos.x
+        self.hitbox.centerx = round(self.pos.x)
+        self.rect.centerx = self.hitbox.centerx
+        self.collision('horizontal')
 
         # vertical movement
         self.pos.y += self.direction.y * self.speed * dt
-        self.rect.centery = self.pos.y
+        self.hitbox.centery = round(self.pos.y)
+        self.rect.centery = self.hitbox.centery
+        self.collision('vertical')
 
     def get_status(self):
         if self.direction == (0, 0):
