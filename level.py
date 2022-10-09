@@ -43,7 +43,13 @@ class Level:
         for obj in tmx_data.get_layer_by_name('Trees'):
             # make sure 'self.all_sprites' is the first Sprite in the array.It's related to
             # sprites.Tree.damage#remove an apple
-            Tree((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites, self.tree_sprites], obj.name)
+            Tree(
+                pos=(obj.x, obj.y),
+                surf=obj.image,
+                groups=[self.all_sprites, self.collision_sprites, self.tree_sprites],
+                name=obj.name,
+                player_add=self.player_add
+            )
 
         # wildflowers
         for obj in tmx_data.get_layer_by_name('Decoration'):
@@ -69,6 +75,9 @@ class Level:
                     collison_sprites=self.collision_sprites,
                     tree_sprites=self.tree_sprites
                 )
+
+    def player_add(self, item):
+        self.player.item_inventory[item] += 1
 
     def run(self, dt):
         self.display_surface.fill('black')
