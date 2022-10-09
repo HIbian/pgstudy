@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
+from support import *
 
 
 class SoilTile(pygame.sprite.Sprite):
@@ -19,6 +20,8 @@ class SoilLayer:
 
         # graphics
         self.soil_surf = pygame.image.load('./graphics/soil/o.png').convert_alpha()
+        self.soil_surfs = import_folder_dict('./graphics/soil/')
+        print(self.soil_surfs)
 
         self.create_soil_grid()
         self.create_hit_rects()
@@ -56,11 +59,42 @@ class SoilLayer:
                     self.create_soil_tiles()
 
     def create_soil_tiles(self):
+        # to change the shape of the old soil when a new soil is next to it.It means we need to redraw all the soil.
         self.soil_sprites.empty()
         for index_row, row in enumerate(self.grid):
             for index_col, cell in enumerate(row):
                 if 'X' in cell:
-                    SoilTile(pos=(index_col * TILE_SIZE, index_row * TILE_SIZE),
-                             surf=self.soil_surf,
-                             groups=[self.all_sprites, self.soil_sprites]
-                             )
+
+                    # tile options
+                    t = 'X' in self.grid[index_row - 1][index_col]
+                    b = 'X' in self.grid[index_row + 1][index_col]
+                    r = 'X' in row[index_col + 1]
+                    l = 'X' in row[index_col - 1]
+                    tile_tpye = 'o'
+
+                    # all sides
+                    if all((t, r, b, l)): tile_tpye = 'x'
+                    # horizontal tiles only
+                    if l and not any((t, r, b)): tile_tpye = 'r'
+                    if r and not any((t, l, b)): tile_tpye = 'l'
+                    if r and l and not any((t, b)): tile_tpye = 'lr'
+                    # vertical only
+                    if b and not any((l, r, t)): tile_tpye = 't'
+                    if t and not any((r, l, b)): tile_tpye = 'b'
+                    if t and b and not any((r, l)): tile_tpye = 'tb'
+                    # corners
+                    if l and b and not any((t, r)): tile_tpye = 'tr'
+                    if l and t and not any((b, r)): tile_tpye = 'br'
+                    if r and b and not any((t, l)): tile_tpye = 'tl'
+                    if r and t and not any((b, l)): tile_tpye = 'bl'
+                    # T shapes
+                    if all((t,b,r)) and not l: tile_tpye = 'tbr'
+                    if all((t,b,l)) and not r: tile_tpye = 'tbl'
+                    if all((t,l,r)) and not b: tile_tpye = 'lrb'
+                    if all((l,b,r)) and not t: tile_tpye = 'lrt'
+
+                    SoilTile(
+                        pos=(index_col * TILE_SIZE, index_row * TILE_SIZE),
+                        surf=self.soil_surfs[tile_tpye],
+                        groups=[self.all_sprites, self.soil_sprites]
+                    )
