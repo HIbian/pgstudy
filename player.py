@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)
         # maintain position individually because of rect only require integer.
         self.pos = pygame.math.Vector2(self.rect.center)
-        self.speed = 200
+        self.speed = 500
 
         # collision
         self.collison_sprites = collison_sprites
@@ -57,6 +57,7 @@ class Player(pygame.sprite.Sprite):
         # interaction
         self.tree_sprites = tree_sprites
         self.interaction_sprites = interaction_sprites
+        self.sleep = False
 
     def use_tool(self):
         if self.selected_tool == 'hoe':
@@ -146,6 +147,7 @@ class Player(pygame.sprite.Sprite):
                         pass
                     elif collided_interaction_sprite[0].name == 'Bed':
                         self.status = 'left_idle'
+                        self.sleep = True
 
     def collision(self, direction):
         for sprite in self.collison_sprites.sprites():

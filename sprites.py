@@ -123,6 +123,8 @@ class Tree(Generic):
             self.check_death()
 
     def create_fruit(self):
+        if not self.alive:
+            return
         for pos in self.apple_pos:
             if randint(0, 10) < 2:
                 x = pos[0] + self.rect.left
