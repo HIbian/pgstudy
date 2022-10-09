@@ -2,7 +2,7 @@ import pygame
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import Generic, Water, WildFlower, Tree
+from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
 from support import import_folder
 
@@ -16,6 +16,7 @@ class Level:
         self.all_sprites = CameraGroup()
         self.collision_sprites = pygame.sprite.Group()
         self.tree_sprites = pygame.sprite.Group()
+        self.interaction_sprites = pygame.sprite.Group()
 
         self.setup()
         self.overlay = Overlay(self.player)
@@ -66,15 +67,20 @@ class Level:
             groups=self.all_sprites,
             z=LAYERS['ground']
         )
-        # Player
+        # Player setup
         for obj in tmx_data.get_layer_by_name('Player'):
+            # set position when level start
             if obj.name == 'Start':
                 self.player = Player(
                     pos=(obj.x, obj.y),
                     group=self.all_sprites,
                     collison_sprites=self.collision_sprites,
-                    tree_sprites=self.tree_sprites
+                    tree_sprites=self.tree_sprites,
+                    interaction_sprites=self.interaction_sprites
                 )
+            # init bed interaction area
+            if obj.name == 'Bed':
+                Interaction((obj.x, obj.y), (obj.width, obj.height), self.interaction_sprites, obj.name)
 
     def player_add(self, item):
         self.player.item_inventory[item] += 1
