@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
                 if tree.rect.collidepoint(self.target_pos):
                     tree.damage()
         if self.selected_tool == 'water':
-            pass
+            self.soil_layer.water(self.target_pos)
 
     def get_target_pos(self):
         self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
@@ -195,7 +195,6 @@ class Player(pygame.sprite.Sprite):
 
         if self.timers['tool use'].active:
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
-            print('tool is to be uesd...')
 
     def update_timers(self):
         for timer in self.timers.values():

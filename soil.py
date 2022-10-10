@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from pytmx.util_pygame import load_pygame
 from support import *
+from random import choice
 
 
 class SoilTile(pygame.sprite.Sprite):
@@ -12,16 +13,24 @@ class SoilTile(pygame.sprite.Sprite):
         self.z = LAYERS['soil']
 
 
+class WaterTile(pygame.sprite.Sprite):
+    def __init__(self, pos, surf, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft=pos)
+        self.z = LAYERS['soil water']
+
+
 class SoilLayer:
     def __init__(self, all_sprites):
         # sprite groups
         self.all_sprites = all_sprites
         self.soil_sprites = pygame.sprite.Group()
+        self.water_sprites = pygame.sprite.Group()
 
         # graphics
-        self.soil_surf = pygame.image.load('./graphics/soil/o.png').convert_alpha()
         self.soil_surfs = import_folder_dict('./graphics/soil/')
-        print(self.soil_surfs)
+        self.water_surfs = import_folder('./graphics/soil_water/')
 
         self.create_soil_grid()
         self.create_hit_rects()
@@ -58,6 +67,34 @@ class SoilLayer:
                     self.grid[y][x].append('X')
                     self.create_soil_tiles()
 
+    def water(self, tartget_pos):
+        for soil_sprite in self.soil_sprites.sprites():
+            if soil_sprite.rect.collidepoint(tartget_pos):
+                # 1. add an entry to the soil grid -> 'w'
+                x = soil_sprite.rect.x // TILE_SIZE
+                y = soil_sprite.rect.y // TILE_SIZE
+                self.grid[y][x].append('W')
+                # 2. create a water sprite
+                # 2.1.copy the position from the soil sprite
+                # 2.2. for the surface -> import the folder '../graphics/soil_water'
+                # 2.3.randomly select on surface
+                # 2.4.create one more group 'water_sprites'
+                pos = soil_sprite.rect.topleft
+                surf = choice(self.water_surfs)
+                WaterTile(pos,surf,[self.all_sprites,self.water_sprites])
+
+    def remove_water(self):
+        # destory all water sprites
+        for sprite in self.water_sprites.sprites():
+            sprite.kill()
+
+        # clean up the grid
+        for row in self.grid:
+            for cell in row:
+                if 'W' in cell:
+                    cell.remove('W')
+
+
     def create_soil_tiles(self):
         # to change the shape of the old soil when a new soil is next to it.It means we need to redraw all the soil.
         self.soil_sprites.empty()
@@ -88,10 +125,10 @@ class SoilLayer:
                     if r and b and not any((t, l)): tile_tpye = 'tl'
                     if r and t and not any((b, l)): tile_tpye = 'bl'
                     # T shapes
-                    if all((t,b,r)) and not l: tile_tpye = 'tbr'
-                    if all((t,b,l)) and not r: tile_tpye = 'tbl'
-                    if all((t,l,r)) and not b: tile_tpye = 'lrb'
-                    if all((l,b,r)) and not t: tile_tpye = 'lrt'
+                    if all((t, b, r)) and not l: tile_tpye = 'tbr'
+                    if all((t, b, l)) and not r: tile_tpye = 'tbl'
+                    if all((t, l, r)) and not b: tile_tpye = 'lrb'
+                    if all((l, b, r)) and not t: tile_tpye = 'lrt'
 
                     SoilTile(
                         pos=(index_col * TILE_SIZE, index_row * TILE_SIZE),
